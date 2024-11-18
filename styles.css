@@ -65,13 +65,13 @@ h1 {
 select, button {
     font-size: 16px;
     padding: 8px 15px;
-    margin-left: 10px;
     border-radius: 5px;
     border: 2px solid #0077be;
     background-color: white;
     color: #0077be;
     cursor: pointer;
     transition: all 0.3s ease;
+    margin: 0;
 }
 
 button {
@@ -101,10 +101,12 @@ select:hover {
 }
 
 #difficulty-selector {
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
 }
 
 .card img {
@@ -187,5 +189,22 @@ select:hover {
 @keyframes confetti-fall {
     0% { transform: translateY(-100vh) rotate(0deg); }
     100% { transform: translateY(100vh) rotate(360deg); }
+}
+
+@media (max-width: 480px) {
+    #difficulty-selector {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    select, button {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin: 10px 0;
+    }
 }
  
