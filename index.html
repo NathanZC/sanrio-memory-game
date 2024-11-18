@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concentration Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Concentration Game</h1>
+    <div id="game-container">
+        <div id="difficulty-selector">
+            Difficulty:
+            <select id="difficulty">
+                <option value="easy">Easy (4x4)</option>
+                <option value="medium">Medium (6x6)</option>
+                <option value="hard">Hard (8x8)</option>
+            </select>
+            <button id="new-game">New Game</button>
+        </div>
+        <div id="game-board"></div>
+        <div id="score">Flips: 0</div>
+        <div id="highscore">High Score: --</div>
+    </div>
+    <audio id="matchSound" preload="auto">
+        <source src="audio/match.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="wrongSound" preload="auto">
+        <source src="audio/wrong.mp3" type="audio/mpeg">
+    </audio>
+    <script src="script.js"></script>
+</body>
+</html>
