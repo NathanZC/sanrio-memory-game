@@ -29,32 +29,46 @@ h1 {
 
 #game-board {
     display: grid;
-    gap: 10px;
-    max-width: 800px;
+    gap: 8px;
+    max-width: 600px;
+    width: 60vw;
+    margin: 0 auto;
 }
 
 .card {
-    width: 80px;
-    height: 80px;
-    background-color: #ffffff;
-    border: 2px solid #0077be;
+    background-color: #005792;
+    border: 2px solid #7fb9e6;
     border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
     cursor: pointer;
-    transition: transform 0.3s ease;
-    overflow: hidden;
-}
-
-.card:hover {
-    transform: scale(1.05);
+    transition: transform 0.3s ease-in-out;
+    transform-style: preserve-3d;
+    position: relative;
+    box-sizing: border-box;
 }
 
 .card.flipped {
     background-color: white;
-    border: 2px solid #0077be;
+    transform: rotateY(180deg);
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 5px;
+    display: block;
+    border-radius: 3px;
+    transform: rotateY(180deg);
+    background-color: white;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+}
+
+.card.flipped img {
+    opacity: 1;
 }
 
 #score, #difficulty-selector {
@@ -107,16 +121,6 @@ select:hover {
     flex-wrap: wrap;
     justify-content: center;
     margin-bottom: 20px;
-}
-
-.card img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    padding: 5px;
-    display: block;
-    border-radius: 3px;
-    background-color: white;
 }
 
 #highscore {

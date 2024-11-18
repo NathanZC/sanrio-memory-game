@@ -114,8 +114,19 @@ function initializeGame() {
         gameBoard.appendChild(card);
     });
 
-    // Adjust card size based on difficulty
-    const cardSize = 320 / size;
+    // Adjust card size based on difficulty and screen size
+    const getBaseSize = () => {
+        if (window.innerWidth <= 480) {
+            return Math.min(window.innerWidth * 0.9, 400);
+        } else if (window.innerWidth <= 768) {
+            return Math.min(window.innerWidth * 0.8, 500);
+        }
+        return Math.min(window.innerWidth * 0.6, 600);
+    };
+
+    const baseSize = getBaseSize();
+    const cardSize = (baseSize / size) - (window.innerWidth <= 480 ? 4 : 8); // Smaller gap on mobile
+
     document.querySelectorAll('.card').forEach(card => {
         card.style.width = `${cardSize}px`;
         card.style.height = `${cardSize}px`;
