@@ -126,4 +126,66 @@ select:hover {
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+.victory-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.victory-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.victory-message {
+    color: white;
+    font-size: 48px;
+    margin-bottom: 20px;
+    animation: bounce 1s ease infinite;
+}
+
+.victory-stats {
+    color: #0077be;
+    font-size: 24px;
+    background: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.play-again-btn {
+    font-size: 20px;
+    padding: 12px 24px;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background-color: #0077be;
+    animation: confetti-fall 3s linear forwards;
+    z-index: 1001;
+}
+
+@keyframes confetti-fall {
+    0% { transform: translateY(-100vh) rotate(0deg); }
+    100% { transform: translateY(100vh) rotate(360deg); }
+}
  

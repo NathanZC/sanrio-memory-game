@@ -83,7 +83,12 @@ const difficulties = {
 };
 
 let cards, flippedCards, matchedPairs, flips;
-let highScores = {};
+let highScores = JSON.parse(localStorage.getItem('memoryGameHighScores')) || {
+    easy: 999999,
+    medium: 999999,
+    hard: 999999
+};
+let isGameWon = false;
 
 function initializeGame() {
     const difficulty = difficultySelect.value;
@@ -142,15 +147,9 @@ function checkMatch() {
         matchSound.currentTime = 0;
         matchSound.play().catch(() => {});
         matchedPairs++;
-        if (matchedPairs === cards.length / 2) {
-            setTimeout(async () => {
-                const isNewHighScore = await checkHighScore(flips, difficultySelect.value);
-                if (isNewHighScore) {
-                    alert(`New High Score! You won in ${Math.floor(flips/2)} attempts!`);
-                } else {
-                    alert(`Congratulations! You won in ${Math.floor(flips/2)} attempts!`);
-                }
-            }, 500);
+        if (matchedPairs === cards.length / 2 && !isGameWon) {
+            isGameWon = true;
+            showVictoryScreen(flips);
         }
     } else {
         wrongSound.currentTime = 0;
@@ -174,41 +173,6 @@ difficultySelect.addEventListener('change', initializeGame);
 // Initialize the game when the page loads
 initializeGame();
 
-// Load high scores from file
-async function loadHighScores() {
-    try {
-        const response = await fetch('highscores.json');
-        highScores = await response.json();
-        updateHighScoreDisplay();
-    } catch (err) {
-        console.error('Error loading high scores:', err);
-        // Fallback to default values if file can't be read
-        highScores = {
-            easy: 999999,
-            medium: 999999,
-            hard: 999999
-        };
-    }
-}
-
-// Save high scores to file
-async function saveHighScores() {
-    try {
-        const response = await fetch('highscores.json', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(highScores)
-        });
-        if (!response.ok) {
-            throw new Error('Failed to save high score');
-        }
-    } catch (err) {
-        console.error('Error saving high score:', err);
-    }
-}
-
 // Update the high score display
 function updateHighScoreDisplay() {
     const difficulty = difficultySelect.value;
@@ -217,11 +181,16 @@ function updateHighScoreDisplay() {
         `High Score: ${highScore === 999999 ? '--' : Math.floor(highScore/2)} attempts`;
 }
 
+// Save high scores
+function saveHighScores() {
+    localStorage.setItem('memoryGameHighScores', JSON.stringify(highScores));
+}
+
 // Check and update high score
-async function checkHighScore(score, difficulty) {
-    if (score < (highScores[difficulty] || 999999)) {
+function checkHighScore(score, difficulty) {
+    if (score < highScores[difficulty]) {
         highScores[difficulty] = score;
-        await saveHighScores();
+        saveHighScores();
         updateHighScoreDisplay();
         return true;
     }
@@ -231,3 +200,44 @@ async function checkHighScore(score, difficulty) {
 // Add event listeners
 difficultySelect.addEventListener('change', updateHighScoreDisplay);
 window.addEventListener('load', loadHighScores); 
+
+function showVictoryScreen(flips) {
+    const overlay = document.querySelector('.victory-overlay');
+    const statsDiv = document.querySelector('.victory-stats');
+    const isHighScore = checkHighScore(flips, difficultySelect.value);
+    
+    statsDiv.textContent = `${isHighScore ? 'New High Score! ' : ''}You completed the game in ${Math.floor(flips/2)} attempts!`;
+    
+    overlay.classList.add('show');
+    createConfetti();
+    
+    document.querySelector('.play-again-btn').addEventListener('click', () => {
+        overlay.classList.remove('show');
+        startNewGame();
+    });
+}
+
+function createConfetti() {
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        
+        const spread = 60;
+        const leftPosition = 20 + (Math.random() * spread);
+        confetti.style.left = leftPosition + 'vw';
+        
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 80%, 50%)`;
+        confetti.style.animationDelay = Math.random() * 2 + 's';
+        
+        document.body.appendChild(confetti);
+        
+        confetti.addEventListener('animationend', () => {
+            confetti.remove();
+        });
+    }
+}
+
+function startNewGame() {
+    isGameWon = false;
+    initializeGame();
+} 
