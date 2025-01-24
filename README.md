@@ -21,7 +21,9 @@ You can play the game here: [Memory Game](https://nathanzc.github.io/sanrio-memo
 
 ## 🖼️ Demo
 
-[Demo screenshot will be added here]
+![Screenshot 2025-01-23 220304](https://github.com/user-attachments/assets/e4428c55-bb8b-44d0-a666-8c0b200c719c)
+
+
 
 ## 🌟 Features
 
