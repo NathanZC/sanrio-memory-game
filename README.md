@@ -39,7 +39,6 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👤 Author
 
-YOUR-NAME
 - GitHub: [NathanZC](https://github.com/NathanZC)
 
 ## ⭐️ Show your support
