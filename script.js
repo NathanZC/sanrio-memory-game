@@ -89,52 +89,102 @@ let highScores = JSON.parse(localStorage.getItem('memoryGameHighScores')) || {
     hard: 999999
 };
 let isGameWon = false;
+let gameMode = null; // 'single' or 'multi'
+const gameMenu = document.getElementById('game-menu');
+const gameContainer = document.getElementById('game-container');
+const singleplayerBtn = document.getElementById('singleplayer-btn');
+const multiplayerBtn = document.getElementById('multiplayer-btn');
+let currentPlayer = 1;
+let player1Matches = 0;
+let player2Matches = 0;
+
+// Hide game container initially
+gameContainer.style.display = 'none';
+
+// Menu button event listeners
+singleplayerBtn.addEventListener('click', () => {
+    gameMode = 'single';
+    startGame();
+});
+
+multiplayerBtn.addEventListener('click', () => {
+    gameMode = 'multi';
+    initializeMultiplayerGame();
+});
+
+function startGame() {
+    // Hide menu and show game
+    gameMenu.style.display = 'none';
+    gameContainer.style.display = 'flex';
+    
+    // Initialize game with selected mode
+    if (gameMode === 'multi') {
+        // Initialize multiplayer specific elements
+        document.getElementById('score').innerHTML = 'Player 1: 0 | Player 2: 0';
+    }
+    
+    initializeGame();
+}
 
 function initializeGame() {
-    const difficulty = difficultySelect.value;
-    const { size, symbols } = difficulties[difficulty];
-
-    gameBoard.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    const difficulty = difficulties[difficultySelect.value];
+    const size = difficulty.size;
+    const symbols = difficulty.symbols;
+    const pairs = (size * size) / 2;
+    const selectedSymbols = symbols.slice(0, pairs);
+    const cardSymbols = [...selectedSymbols, ...selectedSymbols];
+    
+    // Shuffle the cards
+    const shuffledCards = cardSymbols.sort(() => Math.random() - 0.5);
+    cards = shuffledCards; // Store shuffled cards in global variable
+    
+    // Clear the board
     gameBoard.innerHTML = '';
-
-    cards = [...symbols, ...symbols].slice(0, size * size);
-    cards.sort(() => Math.random() - 0.5);
-
+    gameBoard.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    
+    // Create cards
+    shuffledCards.forEach((symbol, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.symbol = symbol;
+        card.dataset.index = index;
+        card.style.aspectRatio = '1';
+        
+        // Add the appropriate event listener based on game mode
+        if (gameMode === 'multi') {
+            card.addEventListener('click', () => handleCardClick(index));
+        } else {
+            card.addEventListener('click', function() {
+                flipCard.call(this);
+            });
+        }
+        
+        gameBoard.appendChild(card);
+    });
+    
+    // Reset game state
     flippedCards = [];
     matchedPairs = 0;
     flips = 0;
+    currentPlayer = 1;
+    player1Matches = 0;
+    player2Matches = 0;
     updateScore();
-
-    cards.forEach((symbol, index) => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-        card.dataset.symbol = symbol;
-        card.dataset.index = index;
-        card.addEventListener('click', flipCard);
-        gameBoard.appendChild(card);
-    });
-
-    // Adjust card size based on difficulty and screen size
-    const getBaseSize = () => {
-        if (window.innerWidth <= 480) {
-            return Math.min(window.innerWidth * 0.9, 400);
-        } else if (window.innerWidth <= 768) {
-            return Math.min(window.innerWidth * 0.8, 500);
-        }
-        return Math.min(window.innerWidth * 0.6, 600);
+    
+    // Return the board data for multiplayer sync
+    return {
+        cards: shuffledCards,
+        size: size
     };
-
-    const baseSize = getBaseSize();
-    const cardSize = (baseSize / size) - (window.innerWidth <= 480 ? 4 : 8); // Smaller gap on mobile
-
-    document.querySelectorAll('.card').forEach(card => {
-        card.style.width = `${cardSize}px`;
-        card.style.height = `${cardSize}px`;
-        card.style.fontSize = `${cardSize * 0.5}px`;
-    });
 }
 
-function flipCard() {
+function handleCardClick() {
+    // Check if it's player's turn in multiplayer
+    if (gameMode === 'multi') {
+        const isMyTurn = (isHost && currentPlayer === 1) || (!isHost && currentPlayer === 2);
+        if (!isMyTurn) return;
+    }
+    
     if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
         this.classList.add('flipped');
         const img = document.createElement('img');
@@ -154,28 +204,44 @@ function flipCard() {
 
 function checkMatch() {
     const [card1, card2] = flippedCards;
-    if (card1.dataset.symbol === card2.dataset.symbol) {
+    const isMatch = card1.dataset.symbol === card2.dataset.symbol;
+    
+    if (isMatch) {
         matchSound.currentTime = 0;
         matchSound.play().catch(() => {});
         matchedPairs++;
+        
+        if (gameMode === 'multi') {
+            handlePlayerTurn(true);
+            syncGameState();
+        }
+        
         if (matchedPairs === cards.length / 2 && !isGameWon) {
             isGameWon = true;
-            showVictoryScreen(flips);
+            showVictoryScreen();
         }
     } else {
-        wrongSound.currentTime = 0;
-        wrongSound.play().catch(err => console.log('Audio play failed:', err));
+        setTimeout(() => {
+            card1.classList.remove('flipped');
+            card2.classList.remove('flipped');
+        }, 1000);
         
-        card1.classList.remove('flipped');
-        card2.classList.remove('flipped');
-        card1.innerHTML = '';
-        card2.innerHTML = '';
+        if (gameMode === 'multi') {
+            handlePlayerTurn(false);
+            syncGameState();
+        }
     }
+    
     flippedCards = [];
+    updateScore();
 }
 
 function updateScore() {
-    scoreElement.textContent = `Attempts: ${Math.floor(flips/2)}`;
+    if (gameMode === 'single') {
+        scoreElement.textContent = `Flips: ${Math.floor(flips/2)}`;
+    } else {
+        scoreElement.textContent = `Player 1: ${player1Matches} | Player 2: ${player2Matches} | Current Turn: Player ${currentPlayer}`;
+    }
 }
 
 newGameButton.addEventListener('click', initializeGame);
@@ -212,7 +278,7 @@ function checkHighScore(score, difficulty) {
 difficultySelect.addEventListener('change', updateHighScoreDisplay);
 window.addEventListener('load', loadHighScores); 
 
-function showVictoryScreen(flips) {
+function showVictoryScreen() {
     const overlay = document.querySelector('.victory-overlay');
     const statsDiv = document.querySelector('.victory-stats');
     const isHighScore = checkHighScore(flips, difficultySelect.value);
@@ -251,4 +317,96 @@ function createConfetti() {
 function startNewGame() {
     isGameWon = false;
     initializeGame();
+}
+
+function handlePlayerTurn(isMatch) {
+    if (gameMode !== 'multi') return;
+    
+    if (isMatch) {
+        // Add point to current player
+        if (currentPlayer === 1) {
+            player1Matches++;
+        } else {
+            player2Matches++;
+        }
+        // Player keeps their turn on match
+    } else {
+        // Switch players only on wrong match
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+    }
+    
+    // Update turn indicator
+    updateTurnIndicator();
+    updateScore();
+}
+
+function updateTurnIndicator() {
+    // Remove previous indicator if it exists
+    const oldIndicator = document.querySelector('.turn-indicator');
+    if (oldIndicator) oldIndicator.remove();
+    
+    // Create new turn indicator
+    const indicator = document.createElement('div');
+    indicator.className = 'turn-indicator';
+    indicator.textContent = `Player ${currentPlayer}'s Turn`;
+    
+    // Add pulsing effect if it's the local player's turn
+    if ((isHost && currentPlayer === 1) || (!isHost && currentPlayer === 2)) {
+        indicator.classList.add('your-turn');
+    }
+    
+    // Insert indicator at the top of the game board
+    gameBoard.parentNode.insertBefore(indicator, gameBoard);
+}
+
+function flipCard() {
+    if (flippedCards.length < 2 && !this.classList.contains('flipped')) {
+        this.classList.add('flipped');
+        const img = document.createElement('img');
+        img.src = this.dataset.symbol;
+        img.alt = 'Card Image';
+        this.innerHTML = '';
+        this.appendChild(img);
+        flippedCards.push(this);
+        flips++;
+        updateScore();
+
+        if (flippedCards.length === 2) {
+            setTimeout(() => {
+                const [card1, card2] = flippedCards;
+                const isMatch = card1.dataset.symbol === card2.dataset.symbol;
+                
+                if (isMatch) {
+                    matchSound.currentTime = 0;
+                    matchSound.play().catch(() => {});
+                    matchedPairs++;
+                    
+                    if (matchedPairs === cards.length / 2 && !isGameWon) {
+                        isGameWon = true;
+                        showVictoryScreen();
+                    }
+                } else {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    card1.innerHTML = '';
+                    card2.innerHTML = '';
+                }
+                
+                flippedCards = [];
+                updateScore();
+            }, 1000);
+        }
+    }
+}
+
+function loadHighScores() {
+    // Load high scores from localStorage
+    highScores = JSON.parse(localStorage.getItem('memoryGameHighScores')) || {
+        easy: 999999,
+        medium: 999999,
+        hard: 999999
+    };
+    
+    // Update the display
+    updateHighScoreDisplay();
 } 
