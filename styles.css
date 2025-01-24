@@ -319,3 +319,161 @@ select:hover {
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
+
+.difficulty-selection {
+    margin: 20px 0;
+    text-align: center;
+    color: white;
+}
+
+.difficulty-selection h3 {
+    color: white;
+    font-size: 24px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.difficulty-selection select {
+    width: 250px;
+    margin: 10px 0;
+    padding: 15px;
+    font-size: 18px;
+    background-color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #0077be;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%230077be%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+    padding-right: 40px;
+}
+
+.difficulty-selection select:hover {
+    background-color: #f0f8ff;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+.difficulty-selection button {
+    width: 250px;
+    font-size: 24px;
+    padding: 15px 40px;
+    background-color: #0077be;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    margin-top: 15px;
+}
+
+.difficulty-selection button:hover {
+    background-color: #005c91;
+    transform: scale(1.05);
+}
+
+#room-id {
+    margin-top: 20px;
+    padding: 15px 25px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 20px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#connection-status {
+    color: white;
+    margin-top: 20px;
+    font-size: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.back-btn {
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    z-index: 2001;
+}
+
+.back-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.exit-btn {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    z-index: 2001;
+}
+
+.exit-btn:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+.create-room {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#multiplayer-menu h2 {
+    color: white;
+    font-size: 32px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.disconnect-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2002;
+}
+
+.disconnect-message {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.disconnect-message button {
+    margin-top: 20px;
+    font-size: 20px;
+    padding: 10px 20px;
+}

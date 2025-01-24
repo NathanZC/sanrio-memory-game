@@ -104,11 +104,14 @@ gameContainer.style.display = 'none';
 // Menu button event listeners
 singleplayerBtn.addEventListener('click', () => {
     gameMode = 'single';
+    // Show high score when entering single player mode
+    document.getElementById('highscore').style.display = 'block';
     startGame();
 });
 
 multiplayerBtn.addEventListener('click', () => {
     gameMode = 'multi';
+    document.getElementById('highscore').style.display = 'none';
     initializeMultiplayerGame();
 });
 
@@ -117,10 +120,42 @@ function startGame() {
     gameMenu.style.display = 'none';
     gameContainer.style.display = 'flex';
     
+    // Add exit button
+    const exitBtn = document.createElement('button');
+    exitBtn.className = 'exit-btn';
+    exitBtn.textContent = 'Exit Game';
+    gameContainer.prepend(exitBtn);
+    
+    exitBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to exit?')) {
+            // Return to main menu
+            gameContainer.style.display = 'none';
+            gameMenu.style.display = 'flex';
+            
+            // Reset game state
+            flippedCards = [];
+            matchedPairs = 0;
+            flips = 0;
+            isGameWon = false;
+            
+            // Remove exit button
+            exitBtn.remove();
+            
+            // Hide victory screen if it's showing
+            document.querySelector('.victory-overlay').classList.remove('show');
+        }
+    });
+    
     // Initialize game with selected mode
     if (gameMode === 'multi') {
         // Initialize multiplayer specific elements
-        document.getElementById('score').innerHTML = 'Player 1: 0 | Player 2: 0';
+        document.getElementById('score').innerHTML = 'You: 0 | Opponent: 0';
+        // Hide high score in multiplayer mode
+        document.getElementById('highscore').style.display = 'none';
+    } else {
+        // Show high score in single player mode
+        document.getElementById('highscore').style.display = 'block';
+        updateHighScoreDisplay();
     }
     
     initializeGame();
@@ -136,11 +171,20 @@ function initializeGame() {
     
     // Shuffle the cards
     const shuffledCards = cardSymbols.sort(() => Math.random() - 0.5);
-    cards = shuffledCards; // Store shuffled cards in global variable
+    cards = shuffledCards;
     
     // Clear the board
     gameBoard.innerHTML = '';
     gameBoard.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    
+    // Hide/Show high score based on game mode
+    const highScoreElement = document.getElementById('highscore');
+    if (gameMode === 'multi') {
+        highScoreElement.style.display = 'none';
+    } else {
+        highScoreElement.style.display = 'block';
+        updateHighScoreDisplay();
+    }
     
     // Create cards
     shuffledCards.forEach((symbol, index) => {
@@ -276,7 +320,13 @@ function checkHighScore(score, difficulty) {
 
 // Add event listeners
 difficultySelect.addEventListener('change', updateHighScoreDisplay);
-window.addEventListener('load', loadHighScores); 
+window.addEventListener('load', () => {
+    loadHighScores();
+    // Hide high score if in multiplayer mode
+    if (gameMode === 'multi') {
+        document.getElementById('highscore').style.display = 'none';
+    }
+}); 
 
 function showVictoryScreen() {
     const overlay = document.querySelector('.victory-overlay');
@@ -377,6 +427,7 @@ function flipCard() {
                 const isMatch = card1.dataset.symbol === card2.dataset.symbol;
                 
                 if (isMatch) {
+                    // Play match sound
                     matchSound.currentTime = 0;
                     matchSound.play().catch(() => {});
                     matchedPairs++;
@@ -386,6 +437,11 @@ function flipCard() {
                         showVictoryScreen();
                     }
                 } else {
+                    // Play wrong match sound if it exists
+                    if (wrongSound) {
+                        wrongSound.currentTime = 0;
+                        wrongSound.play().catch(() => {});
+                    }
                     card1.classList.remove('flipped');
                     card2.classList.remove('flipped');
                     card1.innerHTML = '';
@@ -409,4 +465,13 @@ function loadHighScores() {
     
     // Update the display
     updateHighScoreDisplay();
+}
+
+function initializeMultiplayerGame() {
+    gameMode = 'multi';
+    document.getElementById('game-menu').style.display = 'none';
+    document.getElementById('multiplayer-menu').style.display = 'flex';
+    // Hide high score when entering multiplayer mode
+    document.getElementById('highscore').style.display = 'none';
+    initializeMultiplayer();
 } 
